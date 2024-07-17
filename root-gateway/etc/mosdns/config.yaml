@@ -32,6 +32,7 @@ plugins:
         - "domain:cloudflare.com"
         - "domain:binance.com"
         - "domain:fluence.network"
+        - "domain:letsencrypt.org"
         
       files:
         - "/var/mosdns/china_domain_list.txt"
