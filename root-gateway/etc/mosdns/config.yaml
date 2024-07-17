@@ -1,0 +1,211 @@
+log:
+  level: info
+  file: "/var/log/mosdns.log"
+
+# API 入口设置
+api:
+  http: "0.0.0.0:9091"
+
+include: []
+
+plugins:
+  # 国内（直连）域名
+  - tag: geosite_cn
+    type: domain_set
+    args:
+      exps:
+        - "domain:zeabur.com"
+        - "domain:anaconda.org"
+        - "domain:hf-mirror.com"
+        - "domain:jsdelivr.net"
+        - "domain:windows.com"
+        - "domain:icloud.com"
+        - "domain:microsoft.com"
+        - "domain:lscr.io"
+        - "domain:getgrass.io"
+        - "domain:wynd.network"
+        - "domain:tailscale.com"
+        - "domain:coingecko.com"
+        - "domain:gateio.ws"
+        - "domain:gate.io"
+        - "domain:paypal.com"
+        - "domain:cloudflare.com"
+        - "domain:binance.com"
+        - "domain:fluence.network"
+        
+      files:
+        - "/var/mosdns/china_domain_list.txt"
+        - "/var/mosdns/cdn_domain_list.txt"
+
+  # 国外域名
+  - tag: geosite_no_cn
+    type: domain_set
+    args:
+      exps:
+        - "domain:huggingface.co"
+      files:
+        - "/var/mosdns/gfw_domain_list.txt"
+
+  # 动态域名
+  - tag: dynamic_domain
+    type: domain_set
+    args:
+      exps:
+        - "domain:bone6.top"
+        - "domain:bone6.com"
+        - "domain:grifcc.top"
+
+  # 国内 IP
+  - tag: geoip_cn
+    type: ip_set
+    args:
+      files:
+        - "/var/mosdns/china_ip_list.txt"
+
+  # 国外 IP
+  - tag: geoip_no_cn
+    type: ip_set
+    args:
+      files:
+        - "/var/mosdns/gfw_ip_list.txt"
+
+  # 缓存
+  - tag: lazy_cache
+    type: cache
+    args:
+      size: 20000
+      lazy_cache_ttl: 86400
+      dump_file: "/etc/mosdns/cache.dump"
+      dump_interval: 600
+
+  # 转发至本地服务器
+  - tag: forward_domestic
+    type: forward
+    args:
+      upstreams:
+        - addr: 127.0.0.1:6153
+
+  # 转发至远程服务器
+  - tag: forward_overseas
+    type: forward
+    args:
+      upstreams:
+        - addr: 127.0.0.1:7874
+
+  # 转发至 DNSPod 服务器（个人域名运营商）
+  - tag: forward_personal
+    type: forward
+    args:
+      upstreams:
+        - addr: 119.29.29.29
+
+  # 国内解析
+  - tag: domestic_sequence
+    type: sequence
+    args:
+      - exec: $forward_domestic
+
+  # 国外解析
+  - tag: overseas_sequence_primary
+    type: sequence
+    args:
+      - exec: prefer_ipv4
+      - exec: $forward_overseas
+
+  # 优先国外解析
+  - tag: overseas_sequence
+    type: fallback
+    args:
+      primary: overseas_sequence_primary
+      secondary: domestic_sequence
+      threshold: 500
+      
+  # 动态域名解析
+  - tag: dynamic_sequence
+    type: sequence
+    args:
+      - exec: $forward_personal
+
+  # 有响应终止返回
+  - tag: has_resp_sequence
+    type: sequence
+    args:
+      - matches: has_resp
+        exec: accept
+
+  # fallback 用本地服务器 sequence
+  # 返回非国内 ip 则 drop_resp
+  - tag: query_is_domestic_ip
+    type: sequence
+    args:
+      - exec: $domestic_sequence
+      - matches: "!resp_ip $geoip_cn"
+        exec: drop_resp
+
+  # fallback 用远程服务器 sequence
+  - tag: query_is_overseas
+    type: sequence
+    args:
+      - exec: $overseas_sequence
+
+  # fallback 用本地服务器或远程服务器 sequence
+  - tag: fallback
+    type: fallback
+    args:
+      primary: query_is_domestic_ip
+      secondary: query_is_overseas
+      threshold: 500
+      always_standby: true
+
+  # 查询国内域名
+  - tag: query_is_domestic_domain
+    type: sequence
+    args:
+      - matches: qname $geosite_cn
+        exec: $domestic_sequence
+
+  # 查询国外域名
+  - tag: query_is_no_domestic_domain
+    type: sequence
+    args:
+      - matches: qname $geosite_no_cn
+        exec: $overseas_sequence
+
+  # 查询动态域名
+  - tag: query_is_dynamic_domain
+    type: sequence
+    args:
+      - matches: qname $dynamic_domain
+        exec: $dynamic_sequence
+
+  # 主要的运行逻辑插件
+  # sequence 插件中调用的插件 tag 必须在 sequence 前定义，
+  # 否则 sequence 找不到对应插件。
+  - tag: main_sequence
+    type: sequence
+    args:
+      - exec: $query_is_dynamic_domain
+      - exec: jump has_resp_sequence
+
+      # - exec: $lazy_cache
+      - exec: $query_is_domestic_domain
+      - exec: jump has_resp_sequence
+
+      - exec: $query_is_no_domestic_domain
+      - exec: jump has_resp_sequence
+
+      - exec: $fallback
+
+  # 启动 udp 服务器。
+  - tag: udp_server
+    type: udp_server
+    args:
+      entry: main_sequence
+      listen: ":5335"
+
+  # 启动 tcp 服务器。
+  - tag: tcp_server
+    type: tcp_server
+    args:
+      entry: main_sequence
+      listen: ":5335"
