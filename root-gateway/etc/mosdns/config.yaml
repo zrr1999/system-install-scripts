@@ -9,11 +9,33 @@ api:
 include: []
 
 plugins:
-  # 国内（直连）域名
-  - tag: geosite_cn
+  # 直连域名
+  - tag: direct_domain
+    type: domain_set
+    args:
+      files:
+        - "/var/mosdns/direct-list.txt"
+
+  # 国外域名
+  - tag: proxy_domain
+    type: domain_set
+    args:
+      files:
+        - "/var/mosdns/proxy-list.txt"
+
+  # 广告域名
+  - tag: reject_domain
+    type: domain_set
+    args:
+      files:
+        - "/var/mosdns/reject-list.txt"
+
+  # 白名单域名
+  - tag: white_domain
     type: domain_set
     args:
       exps:
+        - "domain:pt"
         - "domain:zeabur.com"
         - "domain:anaconda.org"
         - "domain:hf-mirror.com"
@@ -27,25 +49,13 @@ plugins:
         - "domain:tailscale.com"
         - "domain:coingecko.com"
         - "domain:gateio.ws"
-        - "domain:gate.io"
         - "domain:paypal.com"
         - "domain:cloudflare.com"
         - "domain:binance.com"
         - "domain:fluence.network"
         - "domain:letsencrypt.org"
-        
-      files:
-        - "/var/mosdns/china_domain_list.txt"
-        - "/var/mosdns/cdn_domain_list.txt"
-
-  # 国外域名
-  - tag: geosite_no_cn
-    type: domain_set
-    args:
-      exps:
-        - "domain:huggingface.co"
-      files:
-        - "/var/mosdns/gfw_domain_list.txt"
+        - "domain:test-ipv6.com"
+        - "domain:auth0.com"
 
   # 动态域名
   - tag: dynamic_domain
@@ -56,19 +66,12 @@ plugins:
         - "domain:bone6.com"
         - "domain:grifcc.top"
 
-  # 国内 IP
+  # 直连 IP
   - tag: geoip_cn
     type: ip_set
     args:
       files:
-        - "/var/mosdns/china_ip_list.txt"
-
-  # 国外 IP
-  - tag: geoip_no_cn
-    type: ip_set
-    args:
-      files:
-        - "/var/mosdns/gfw_ip_list.txt"
+        - "/var/mosdns/cn.txt"
 
   # 缓存
   - tag: lazy_cache
@@ -98,6 +101,7 @@ plugins:
     type: forward
     args:
       upstreams:
+        - addr: 1.0.0.1
         - addr: 119.29.29.29
 
   # 国内解析
@@ -162,33 +166,44 @@ plugins:
   - tag: query_is_domestic_domain
     type: sequence
     args:
-      - matches: qname $geosite_cn
+      - matches: qname $direct_domain
         exec: $domestic_sequence
 
   # 查询国外域名
   - tag: query_is_no_domestic_domain
     type: sequence
     args:
-      - matches: qname $geosite_no_cn
+      - matches: qname $proxy_domain
         exec: $overseas_sequence
 
   # 查询动态域名
   - tag: query_is_dynamic_domain
     type: sequence
     args:
-      - matches: qname $dynamic_domain
+      - matches: qname $dynamic_domain 
+        exec: $dynamic_sequence
+      - matches: qname $white_domain 
         exec: $dynamic_sequence
 
+  # 查询广告域名
+  - tag: query_is_ad_domain
+    type: sequence
+    args:
+      - matches: qname $reject_domain
+        exec: reject 3
+
   # 主要的运行逻辑插件
-  # sequence 插件中调用的插件 tag 必须在 sequence 前定义，
-  # 否则 sequence 找不到对应插件。
   - tag: main_sequence
     type: sequence
     args:
+      - exec: $query_is_ad_domain
+
       - exec: $query_is_dynamic_domain
       - exec: jump has_resp_sequence
 
-      # - exec: $lazy_cache
+      - exec: $lazy_cache
+      - exec: jump has_resp_sequence
+      
       - exec: $query_is_domestic_domain
       - exec: jump has_resp_sequence
 

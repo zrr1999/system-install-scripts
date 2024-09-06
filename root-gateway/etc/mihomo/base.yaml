@@ -1,7 +1,7 @@
-port: 7890
-socks-port: 7891
-mixed-port: 7892
-redir-port: 7893
+port: null
+socks-port: null
+mixed-port: null
+redir-port: null
 tproxy-port: 7894
 ipv6: false
 udp: true
