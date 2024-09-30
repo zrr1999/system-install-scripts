@@ -102,7 +102,6 @@ plugins:
     args:
       upstreams:
         - addr: 1.0.0.1
-        - addr: 119.29.29.29
 
   # 国内解析
   - tag: domestic_sequence
