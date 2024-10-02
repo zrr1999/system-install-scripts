@@ -1,4 +1,4 @@
-paru -S --noconfirm --needed yq smartdns mosdns-bin metacubexd mihomo
+paru -S --noconfirm --needed go-yq smartdns mosdns-bin metacubexd mihomo
 
 su root
 bash /usr/share/mosdns/update.sh
@@ -11,8 +11,9 @@ systemctl start smartdns
 
 systemctl enable mihomo
 systemctl start mihomo
-systemctl enable metacubexd
-systemctl start metacubexd
+
+systemctl enable nftables
+systemctl start nftables
 
 (crontab -l 2>/dev/null; echo "0 3 1 * * bash /usr/share/mosdns/update.sh") | crontab
 (crontab -l 2>/dev/null; echo "3 3 1 * * systemctl restart mosdns") | crontab
