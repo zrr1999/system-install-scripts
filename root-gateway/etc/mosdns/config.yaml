@@ -47,6 +47,7 @@ plugins:
         - "domain:getgrass.io"
         - "domain:wynd.network"
         - "domain:tailscale.com"
+        - "domain:tailscale.io"
         - "domain:coingecko.com"
         - "domain:gateio.ws"
         - "domain:paypal.com"
@@ -56,9 +57,11 @@ plugins:
         - "domain:letsencrypt.org"
         - "domain:test-ipv6.com"
         - "domain:auth0.com"
-        - "domain:aihubmix.com"
+        - "domain:ooo.cool"
+        - "domain:turboai.io"
         - "domain:cursor.sh"
         - "domain:cursor.com"
+        - "domain:apple.com"
 
   # 动态域名
   - tag: dynamic_domain
@@ -85,21 +88,21 @@ plugins:
       dump_file: "/etc/mosdns/cache.dump"
       dump_interval: 600
 
-  # 转发至本地服务器
+  # 转发至 SmartDNS
   - tag: forward_domestic
     type: forward
     args:
       upstreams:
         - addr: 127.0.0.1:6153
 
-  # 转发至远程服务器
+  # 转发至 Mihomo 获取 FakeIP 
   - tag: forward_overseas
     type: forward
     args:
       upstreams:
         - addr: 127.0.0.1:7874
 
-  # 转发至 DNSPod 服务器（个人域名运营商）
+  # 转发至 Cloudflare（个人域名运营商）
   - tag: forward_personal
     type: forward
     args:
@@ -185,7 +188,7 @@ plugins:
       - matches: qname $dynamic_domain 
         exec: $dynamic_sequence
       - matches: qname $white_domain 
-        exec: $dynamic_sequence
+        exec: $domestic_sequence
 
   # 查询广告域名
   - tag: query_is_ad_domain
