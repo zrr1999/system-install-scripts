@@ -56,6 +56,9 @@ plugins:
         - "domain:letsencrypt.org"
         - "domain:test-ipv6.com"
         - "domain:auth0.com"
+        - "domain:aihubmix.com"
+        - "domain:cursor.sh"
+        - "domain:cursor.com"
 
   # 动态域名
   - tag: dynamic_domain
