@@ -36,32 +36,41 @@ plugins:
     args:
       exps:
         - "domain:pt"
-        - "domain:zeabur.com"
-        - "domain:anaconda.org"
-        - "domain:hf-mirror.com"
-        - "domain:jsdelivr.net"
-        - "domain:windows.com"
-        - "domain:icloud.com"
-        - "domain:microsoft.com"
-        - "domain:lscr.io"
-        - "domain:getgrass.io"
-        - "domain:wynd.network"
-        - "domain:tailscale.com"
-        - "domain:tailscale.io"
+
+        # 金融和区块链
+        - "domain:paypal.com"
         - "domain:coingecko.com"
         - "domain:gateio.ws"
-        - "domain:paypal.com"
-        - "domain:cloudflare.com"
-        - "domain:binance.com"
+        - "domain:getgrass.io"
+        - "domain:wynd.network"
         - "domain:fluence.network"
+        - "domain:binance.com"
+
+        # 科技公司域名
+        - "domain:zeabur.com"
+        - "domain:anaconda.org"
+        - "domain:jsdelivr.net"
+        - "domain:icloud.com"
+        - "domain:tailscale.com"
+        - "domain:tailscale.io"
+        - "domain:cloudflare.com"
+        - "domain:auth0.com"
+        - "domain:apple.com"
+        - "domain:windows.com"
+        - "domain:microsoft.com"
+        - "domain:cloudflarestorage.com"
+
+        # 网络服务域名
+        - "domain:lscr.io"
+        - "domain:hf-mirror.com"
         - "domain:letsencrypt.org"
         - "domain:test-ipv6.com"
-        - "domain:auth0.com"
         - "domain:ooo.cool"
         - "domain:turboai.io"
         - "domain:cursor.sh"
         - "domain:cursor.com"
-        - "domain:apple.com"
+        - "domain:maptiler.com"
+        - "domain:claw.cloud"
 
   # 动态域名
   - tag: dynamic_domain
@@ -78,15 +87,6 @@ plugins:
     args:
       files:
         - "/var/mosdns/cn.txt"
-
-  # 缓存
-  - tag: lazy_cache
-    type: cache
-    args:
-      size: 20000
-      lazy_cache_ttl: 86400
-      dump_file: "/etc/mosdns/cache.dump"
-      dump_interval: 600
 
   # 转发至 SmartDNS
   - tag: forward_domestic
@@ -204,9 +204,6 @@ plugins:
       - exec: $query_is_ad_domain
 
       - exec: $query_is_dynamic_domain
-      - exec: jump has_resp_sequence
-
-      - exec: $lazy_cache
       - exec: jump has_resp_sequence
       
       - exec: $query_is_domestic_domain

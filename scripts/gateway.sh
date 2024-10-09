@@ -4,16 +4,10 @@ su root
 bash /usr/share/mosdns/update.sh
 bash /usr/share/mihomo/update.sh
 
-systemctl enable mosdns
-systemctl start mosdns
-systemctl enable smartdns
-systemctl start smartdns
-
-systemctl enable mihomo
-systemctl start mihomo
-
-systemctl enable nftables
-systemctl start nftables
+systemctl enable --now mosdns
+systemctl enable --now smartdns
+systemctl enable --now mihomo
+systemctl enable --now nftables
 
 (crontab -l 2>/dev/null; echo "0 3 1 * * bash /usr/share/mosdns/update.sh") | crontab
 (crontab -l 2>/dev/null; echo "3 3 1 * * systemctl restart mosdns") | crontab
