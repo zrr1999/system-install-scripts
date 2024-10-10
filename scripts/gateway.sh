@@ -9,10 +9,9 @@ systemctl enable --now smartdns
 systemctl enable --now mihomo
 systemctl enable --now nftables
 
-(crontab -l 2>/dev/null; echo "0 3 1 * * bash /usr/share/mosdns/update.sh") | crontab
-(crontab -l 2>/dev/null; echo "3 3 1 * * systemctl restart mosdns") | crontab
-(crontab -l 2>/dev/null; echo "6 3 1 * * bash /usr/share/mihomo/update.sh") | crontab
-(crontab -l 2>/dev/null; echo "9 3 1 * * systemctl restart mihomo") | crontab
+(crontab -l 2>/dev/null; echo "0 3 * * 1 bash /usr/share/mosdns/update.sh") | crontab
+(crontab -l 2>/dev/null; echo "3 3 * * 1 bash /usr/share/mihomo/update.sh") | crontab
+(crontab -l 2>/dev/null; echo "6 3 * * 1 bash /usr/local/bin/restart-gateway-services.sh") | crontab
 
 ip rule add fwmark 0x161 lookup 100
 ip rule add fwmark 0x162 lookup 100
