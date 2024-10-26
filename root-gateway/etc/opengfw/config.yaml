@@ -1,0 +1,21 @@
+io:
+  queueSize: 1024
+  rcvBuf: 4194304
+  sndBuf: 4194304
+  local: true 
+  rst: false 
+
+workers:
+  count: 4 
+  queueSize: 64
+  tcpMaxBufferedPagesTotal: 65536
+  tcpMaxBufferedPagesPerConn: 16
+  tcpTimeout: 10m 
+  udpMaxStreams: 4096
+
+# ruleset:
+#   geoip: geoip.dat
+#   geosite: geosite.dat
+
+replay:
+  realtime: false

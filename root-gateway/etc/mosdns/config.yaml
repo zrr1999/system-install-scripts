@@ -72,6 +72,9 @@ plugins:
         - "domain:maptiler.com"
         - "domain:claw.cloud"
 
+        # 其他
+        - "domain:zhipin.com"
+
   # 动态域名
   - tag: dynamic_domain
     type: domain_set

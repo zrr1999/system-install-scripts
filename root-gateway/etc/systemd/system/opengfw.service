@@ -1,0 +1,11 @@
+[Unit]
+Description=OpenGFW Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/opengfw -c /etc/opengfw/config.yaml /etc/opengfw/rules.yaml
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

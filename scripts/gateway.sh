@@ -8,6 +8,7 @@ systemctl enable --now mosdns
 systemctl enable --now smartdns
 systemctl enable --now mihomo
 systemctl enable --now nftables
+systemctl enable --now opengfw
 
 (crontab -l 2>/dev/null; echo "0 3 * * 1 bash /usr/share/mosdns/update.sh") | crontab
 (crontab -l 2>/dev/null; echo "3 3 * * 1 bash /usr/share/mihomo/update.sh") | crontab
