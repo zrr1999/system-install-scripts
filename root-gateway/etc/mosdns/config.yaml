@@ -22,6 +22,9 @@ plugins:
     args:
       files:
         - "/var/mosdns/proxy-list.txt"
+      exps:
+        - "domain:okx.com"
+        - "domain:coingecko.com"
 
   # 广告域名
   - tag: reject_domain
@@ -42,13 +45,9 @@ plugins:
 
         # 金融和区块链
         - "domain:paypal.com"
-        - "domain:coingecko.com"
-        - "domain:gateio.ws"
         - "domain:getgrass.io"
         - "domain:wynd.network"
         - "domain:fluence.network"
-        - "domain:binance.com"
-        - "domain:okx.com"
 
         # 科技公司域名
         - "domain:zeabur.com"
@@ -73,8 +72,7 @@ plugins:
         - "domain:turboai.io"
         - "domain:uniapi.ai"
         - "domain:uniapi.me"
-        - "domain:cursor.sh"
-        - "domain:cursor.com"
+        - "domain:/cursor/"
         - "domain:maptiler.com"
         - "domain:claw.cloud"
         - "domain:duocloud.net"
