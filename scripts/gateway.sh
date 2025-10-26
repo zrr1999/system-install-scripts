@@ -17,3 +17,6 @@ systemctl enable --now opengfw
 ip rule add fwmark 0x161 lookup 100
 ip rule add fwmark 0x162 lookup 100
 ip route add local 0.0.0.0/0 dev lo table 100
+
+read -p "请输入 gateway-group 的值: " gateway_group
+uvx auto-config --gateway-group "$gateway_group"

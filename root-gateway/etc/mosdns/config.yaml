@@ -83,6 +83,7 @@ plugins:
         # 其他
         - "domain:zhipin.com"
         - "domain:themoviedb.org"
+        - "domain:ghproxy.com"
 
   # 动态域名
   - tag: dynamic_domain
@@ -192,6 +193,13 @@ plugins:
       threshold: 500
       always_standby: true
 
+  # 查询内网域名
+  - tag: query_is_hosts
+    type: hosts
+    args:
+      files:
+        - "/var/mosdns/hosts"
+
   # 查询直连域名
   - tag: query_is_domestic_domain
     type: sequence
@@ -227,6 +235,9 @@ plugins:
     type: sequence
     args:
       - exec: $query_is_ad_domain
+
+      - exec: $query_is_hosts
+      - exec: jump has_resp_sequence
 
       - exec: $query_is_dynamic_domain
       - exec: jump has_resp_sequence
